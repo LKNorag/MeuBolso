@@ -8,31 +8,33 @@ Desenvolvido por **Luis Arthur Kawano** — luisarthurkawano@gmail.com
 
 - **Cadastro de usuário** (nome, e-mail, senha e confirmação, com validação)
 - **Login** com verificação de e-mail e senha
-- **Sessão salva**: ao abrir o app de novo, você continua logado
-- **Tela inicial** com saldo, total de receitas e total de despesas
-- **Cadastro de lançamentos** (receita ou despesa, descrição, valor e categoria)
-- **Filtro** por Todos / Receitas / Despesas
-- **Exclusão** de lançamentos
-- **Sair** da conta
 
-Os dados ficam salvos no próprio aparelho/navegador usando `AsyncStorage`.
+As contas ficam salvas no **Supabase** (Supabase Auth).
+
+## Configuração do Supabase
+
+Crie um arquivo `.env` na raiz do projeto (use o `.env.example` como modelo):
+
+```
+EXPO_PUBLIC_SUPABASE_URL=https://SEU-PROJETO.supabase.co
+EXPO_PUBLIC_SUPABASE_KEY=SUA_CHAVE_PUBLICA
+```
+
+O script do banco está em `supabase/schema.sql`.
 
 ## Estrutura
 
 ```
 app/
-  _layout.js              -> navegação principal (Stack)
+  _layout.js              -> navegação (Stack)
   index.js                -> tela de login
   register.js             -> tela de cadastro de usuário
-  (app)/
-    _layout.js            -> navegação da área logada
-    home.js               -> saldo + lista de lançamentos
-    new-transaction.js    -> cadastro de receita/despesa
 src/
   components/             -> AppInput e AppButton
   constants/theme.js      -> cores, espaçamentos e bordas
-  services/storage.js     -> usuários, sessão e lançamentos
-  utils/helpers.js        -> formatação de dinheiro/data e alertas
+  lib/supabase.js         -> conexão com o Supabase
+  services/auth.js        -> cadastro e login de usuários (Supabase Auth)
+  utils/helpers.js        -> validação de e-mail e alertas
 ```
 
 ## Como rodar

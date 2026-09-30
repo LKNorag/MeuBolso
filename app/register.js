@@ -4,7 +4,7 @@ import { router } from 'expo-router';
 import AppInput from '../src/components/AppInput';
 import AppButton from '../src/components/AppButton';
 import { COLORS, RADIUS, SPACING } from '../src/constants/theme';
-import { registerUser } from '../src/services/storage';
+import { registerUser } from '../src/services/auth';
 import { isValidEmail, notify } from '../src/utils/helpers';
 
 export default function Register() {
@@ -27,8 +27,12 @@ export default function Register() {
 
         try {
             setLoading(true);
-            await registerUser({ name, email, password });
-            notify('Conta criada!', 'Agora é só entrar com seu e-mail e senha.');
+            const { needsConfirmation } = await registerUser({ name, email, password });
+            if (needsConfirmation) {
+                notify('Conta criada!', 'Enviamos um link de confirmação para o seu e-mail. Confirme e depois faça o login.');
+            } else {
+                notify('Conta criada!', 'Agora é só entrar com seu e-mail e senha.');
+            }
             router.replace('/');
         } catch (e) {
             setErrors({ email: e.message });

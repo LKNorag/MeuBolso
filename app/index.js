@@ -1,27 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, View, Text, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { router } from 'expo-router';
 import AppInput from '../src/components/AppInput';
 import AppButton from '../src/components/AppButton';
 import { COLORS, RADIUS, SPACING } from '../src/constants/theme';
-import { login, getSession } from '../src/services/storage';
-import { isValidEmail } from '../src/utils/helpers';
+import { login } from '../src/services/auth';
+import { isValidEmail, notify } from '../src/utils/helpers';
 
 export default function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
-    const [checking, setChecking] = useState(true);
-
-    // Se ja existe alguem logado, vai direto para o inicio
-    useEffect(() => {
-        getSession()
-            .then((session) => {
-                if (session) router.replace('/home');
-            })
-            .finally(() => setChecking(false));
-    }, []);
 
     async function handleLogin() {
         const newErrors = {};
@@ -33,21 +23,15 @@ export default function Login() {
 
         try {
             setLoading(true);
-            await login(email, password);
-            router.replace('/home');
+            const user = await login(email, password);
+            notify('Login realizado!', `Bem-vindo(a), ${user.name}!`);
+            setEmail('');
+            setPassword('');
         } catch (e) {
             setErrors({ general: e.message });
         } finally {
             setLoading(false);
         }
-    }
-
-    if (checking) {
-        return (
-            <View style={[styles.container, { justifyContent: 'center' }]}>
-                <ActivityIndicator color={COLORS.primary} size="large" />
-            </View>
-        );
     }
 
     return (
