@@ -1,5 +1,11 @@
-// Cadastro e login de usuarios usando o Supabase Auth
-import { supabase } from '../lib/supabase';
+
+import { supabase, supabaseConfigured } from '../lib/supabase';
+
+function checkConfig() {
+    if (!supabaseConfigured) {
+        throw new Error('Supabase não configurado. Verifique o arquivo .env na raiz do projeto.');
+    }
+}
 
 function translateError(error) {
     const msg = (error?.message || '').toLowerCase();
@@ -13,6 +19,7 @@ function translateError(error) {
 }
 
 export async function registerUser({ name, email, password }) {
+    checkConfig();
     const { data, error } = await supabase.auth.signUp({
         email: email.trim().toLowerCase(),
         password,
@@ -21,21 +28,18 @@ export async function registerUser({ name, email, password }) {
 
     if (error) throw new Error(translateError(error));
 
-    // Com "Confirm email" ligado, o Supabase nao avisa que o e-mail ja existe:
-    // ele devolve um usuario sem identidades.
     if (data.user && data.user.identities && data.user.identities.length === 0) {
         throw new Error('Este e-mail já está cadastrado.');
     }
 
     const needsConfirmation = !data.session;
-
-    // Sai da conta para o usuario fazer o login na tela de login
     if (data.session) await supabase.auth.signOut();
 
     return { needsConfirmation };
 }
 
 export async function login(email, password) {
+    checkConfig();
     const { data, error } = await supabase.auth.signInWithPassword({
         email: email.trim().toLowerCase(),
         password,
